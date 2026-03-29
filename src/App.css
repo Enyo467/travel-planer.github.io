@@ -1,5 +1,6 @@
+/*Ogólny wygląd*/
 body {
-  background: #F0DCF5;
+  background: #FFECEB;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -12,43 +13,109 @@ body {
   flex-direction: column;
 }
 
-.logo {
+/*Logo - TravelPlaner; i Tytuł planu*/
+.title {
   font-family: Georgia;
   align-self: center;
   -webkit-text-stroke: 1px black;
+  width: 100vw;
+  text-align: center;
 }
 
+/*Całe pole wyświetlania planów i przycisku dodawania planów*/
 .plans {
+  background: #FFECEB;
+  width: 100vw;
   display: flex;
-  flex-direction: row;
-  width: 80vw;
+  justify-content: center;
+  padding: 40px 0;
 }
 
-.addPlanBtn {
-  background-color: #DDC6DE;
-  width: 15vw;
-  height: 15vh;
+.newPlans {
+  background: #FFECEB;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 250px);
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 60px;
+  width: 90%;
+  max-width: 1200px;
+  padding: 30px;
+}
+
+/*Pole dodanych planów i przycisku usuwania*/
+.planWrapper {
+  width: 250px;
+  height: 180px;
+  animation: popIn 0.3s ease;
+}
+
+.planWrapper:hover {
+  transform: translate(5px, -5px);
+  transition: 0.3s;
+  box-shadow: -10px 10px 10px #F7E0DF;
+}
+
+/*Dodany plan*/
+.addedPlan {
+  background-color: #FFF3F2;
+  width: 250px;
+  height: 180px;
   color: black;
   border: black solid 2px;
   border-radius: 15px;
   text-align: center;
   font-size: 50px;
   font-optical-sizing: auto;
+  align-self: center;
 }
 
-.addPlanBtn:hover {
-  background-color: #CEB4CF;
-  transform: translate(5px, -5px);
-  transition: 0.3s;
-  box-shadow: -10px 10px 10px #DDC6DE;
+.addedPlan:hover {
+  background-color: #F7E0DF;
 }
 
-.nameAPW input {
-  background-color: lightgray;
-  padding: 3px;
+/*Przycisk usuwania planu*/
+.deletePlanBtn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  border-radius: 15px;
+  width: 30px;
+  height: 30px;
+  background-color: #DDC6DE;
+  border: 2px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   color: black;
 }
 
+.deletePlanBtn:hover {
+  background-color: #F7E0DF;
+}
+
+/*Przycisk dodawania planów*/
+.addPlanBtn {
+  background-color: #FFF3F2;
+  width: 250px;
+  height: 180px;
+  color: black;
+  border: black solid 2px;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 50px;
+  font-optical-sizing: auto;
+  animation: popIn 0.3s ease;
+}
+
+.addPlanBtn:hover {
+  background-color: #F7E0DF;
+  transform: translate(5px, -5px);
+  transition: 0.3s;
+  box-shadow: -10px 10px 10px #F7E0DF;
+}
+
+/*Tło pod oknem dodawania planu*/
 .addPlanWindow {
   position: fixed;
   top: 0;
@@ -62,8 +129,9 @@ body {
   z-index: 1000; /* Musi być wyżej niż reszta strony */
 }
 
+/*Okno dodawania planu*/
 .nameAPW {
-  background-color: #F0DCF5;
+  background-color: #FFECEB;
   padding: 50px;
   border-radius: 15px;
   display: flex;
@@ -71,8 +139,44 @@ body {
   position: relative;
 }
 
+/*Pole do wpisania nazwy planu*/
+.nameAPW input {
+  background-color: lightgray;
+  padding: 3px;
+  color: black;
+  margin-bottom: 5px;
+}
+
+/*Przycisk do zamknięcia dodawania planu*/
 .closeBtn {
+  border-radius: 15px;
+  width: 30px;
+  height: 30px;
+  background-color: #DDC6DE;
+  border: 2px solid black;
   position: absolute;
   top: 10px;
   right: 10px;
+}
+
+.closeBtn:hover {
+  background-color: #F7E0DF;
+}
+
+/*Przycisk zapisu dodawania planu*/
+.saveBtnAPW {
+  background-color: #DDC6DE;
+  border-radius: 15px;
+  padding: 3px;
+  border: 2px solid black;
+}
+
+.saveBtnAPW:hover {
+  background-color: #F7E0DF;
+}
+
+/*Animacja pojawiania się planu*/
+@keyframes popIn {
+  0% { transform: scale(0.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
 }
