@@ -35,10 +35,10 @@ function PlanDetails() {
     const [newNameDay, setNewNameDay] = useState<string>("");
 
     const [namePackInput, setNamePackInput] = useState<string>("");
-    const [newPackName, setNewPackName] = useState<string>("");
+    /*const [newPackName, setNewPackName] = useState<string>("");*/
     const [isAddPackOpen, setIsAddPackOpen] = useState<boolean>(false);
-    const [isEditPackOpen, setIsEditPackOpen] = useState<boolean>(false);
-    const [isDone, setIsDone] = useState<boolean>(false);
+    /*const [isEditPackOpen, setIsEditPackOpen] = useState<boolean>(false);*/
+    /*const [isDone, setIsDone] = useState<boolean>(false);*/
 
 
     const addDay = () => {
@@ -187,14 +187,18 @@ function PlanDetails() {
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
     }
 
-    const updateStuff = (packId: number, stuffIndex: number, newValue: string)=> {
+    const updateStuff = (packId: number, stuffId: number, newValue: string)=> {
         const updatedPlans = allPlans.map(plan => {
             if (plan.name === planName) {
                 const updatedPacks = plan.packs.map(pack => {
                     if (pack.id === packId) {
-                        const newStuff = [...pack.stuff];
-                        newStuff[stuffIndex] = newValue;
-                        return { ...pack, stuff: newStuff };
+                        const updatedStuff = pack.stuff.map(stuff => {
+                            if (stuff.id === stuffId) {
+                                return { ...stuff, name: newValue}
+                            }
+                            return stuff;
+                        })
+                        return { ...pack, stuff: updatedStuff };
                     }
                     return pack;
                 })
@@ -274,7 +278,7 @@ function PlanDetails() {
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
     };
 
-    const changeDone = (packId: number, stuffId: number) => {
+    /*const changeDone = (packId: number, stuffId: number) => {
         const updatedPlans = allPlans.map(plan => {
             if (plan.name === planName) {
                 const updatedPacks = plan.packs.map(pack => {
@@ -300,7 +304,7 @@ function PlanDetails() {
         })
         setAllPlans(updatedPlans);
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
-    }
+    }*/
 
     return (
         <div className="planDetails">
