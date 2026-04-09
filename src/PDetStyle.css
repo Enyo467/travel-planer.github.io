@@ -128,7 +128,7 @@
 }
 
 /*Przycisk usunięcia dnia*/
-.deleteDayBtn {
+.deleteBtn {
     position: absolute;
     top: 10px;
     right: 10px;
@@ -142,7 +142,7 @@
     color: black;
 }
 
-.deleteDayBtn:hover {
+.deleteBtn:hover {
     background-color: #F7E0DF;
 }
 

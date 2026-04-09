@@ -75,7 +75,7 @@ function MainMenu() {
                         <div key={plan.id} className="planWrapper" style={{position: 'relative'}}>
                             <button className="addedPlan" onClick={() => planClick(plan.name)}>{plan.name}</button>
 
-                            <button className="deletePlanBtn" onClick={(e) => {
+                            <button className="deleteBtn" onClick={(e) => {
                                 e.stopPropagation();
                                 removePlan(plan.id);
                             }}>X</button>
@@ -117,7 +117,7 @@ function MainMenu() {
                             }}
                         />
 
-                        <button className="saveBtnAPW" onClick={addPlan}>Save</button>
+                        <button className="saveBtn" onClick={addPlan}>Save</button>
 
                     </div>
                 </div>
@@ -143,7 +143,7 @@ function MainMenu() {
                             }}
                         />
 
-                        <button className="saveBtnAPW" onClick={() => editPlan(planToEditId as number, newNamePlan)}>Save</button>
+                        <button className="saveBtn" onClick={() => editPlan(planToEditId as number, newNamePlan)}>Save</button>
 
                     </div>
                 </div>

@@ -8,8 +8,13 @@ export interface PlanT {
 export interface Day {
     id: number;
     name: string;
-    activities: string[]; /*zmienić na oddzielny obiekt z aktynością i godzinami, REFAKTORYZACJA KODU*/
-    hours: string[];
+    actvs: Actv[];
+}
+
+export interface Actv {
+    id: number;
+    activity: string;
+    hour: string;
 }
 
 export interface PackList {

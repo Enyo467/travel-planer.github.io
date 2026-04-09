@@ -3,7 +3,7 @@ import './PDetStyle.css'
 import './PackListStyle.css'
 import {useState} from "react";
 import { useParams, useNavigate } from 'react-router-dom';
-import type { PlanT, Day, PackList, StuffList } from './types';
+import type { PlanT, Day, PackList, StuffList, Actv } from './types';
 
 type TabType= 'plan' | 'finanse' | 'info' | 'pack';
 
@@ -13,7 +13,7 @@ function PlanDetails() {
     const [activeTab, setActiveTab] = useState<TabType>('plan');
     const [isAddDayOpen, setIsAddDayOpen] = useState<boolean>(false);
     const [isEditDayOpen, setIsEditDayOpen] = useState<boolean>(false);
-    const [planToEditId, setPlanToEditId] = useState<number | null>(null);
+    const [dayToEditId, setDayToEditId] = useState<number | null>(null);
 
     const [allPlans, setAllPlans] = useState<PlanT[]>(() => {
         const saved = localStorage.getItem('myTravelPlans');
@@ -35,10 +35,10 @@ function PlanDetails() {
     const [newNameDay, setNewNameDay] = useState<string>("");
 
     const [namePackInput, setNamePackInput] = useState<string>("");
-    /*const [newPackName, setNewPackName] = useState<string>("");*/
+    const [newPackName, setNewPackName] = useState<string>("");
     const [isAddPackOpen, setIsAddPackOpen] = useState<boolean>(false);
-    /*const [isEditPackOpen, setIsEditPackOpen] = useState<boolean>(false);*/
-    /*const [isDone, setIsDone] = useState<boolean>(false);*/
+    const [isEditPackOpen, setIsEditPackOpen] = useState<boolean>(false);
+    const [packToEditId, setPackToEditId] = useState<number | null>(null);
 
 
     const addDay = () => {
@@ -47,8 +47,7 @@ function PlanDetails() {
         const newDay: Day = {
             id: Date.now(),
             name: nameDayInput,
-            activities: [],
-            hours: []
+            actvs: []
         };
 
         const updatedPlans = allPlans.map(plan => {
@@ -58,8 +57,8 @@ function PlanDetails() {
             return plan;
         });
 
-        setAllPlans(updatedPlans); // Aktualizujemy główny stan
-        localStorage.setItem('myTravelPlans', JSON.stringify(updatedPlans)); // Zapisujemy wszystko
+        setAllPlans(updatedPlans);
+        localStorage.setItem('myTravelPlans', JSON.stringify(updatedPlans));
 
         setNameDayInput("");
         setIsAddDayOpen(false);
@@ -88,11 +87,8 @@ function PlanDetails() {
             if (plan.name === planName) {
                 const updatedDays = plan.days.map(day => {
                     if (day.id === dayId) {
-                        const updatedActv = day.activities.filter((_, index) => index !== activityIndex);
-                        const updatedHour = day.hours.filter((_, index) => index !== activityIndex);
-                        return { ...day,
-                            activities: updatedActv,
-                            hours: updatedHour};
+                        const updatedActvs = day.actvs.filter(item => item.id !== activityIndex);
+                        return { ...day, actvs: updatedActvs };
                     }
                     return day;
                 });
@@ -133,9 +129,13 @@ function PlanDetails() {
             if (plan.name === planName) {
                 const updatedDays = plan.days.map(day => {
                     if (day.id === dayId) {
-                        return {...day,
-                            activities: [...day.activities, ""],
-                            hours: [...day.hours, ""]};
+                        const newActv: Actv = {
+                            id: Date.now(),
+                            activity: "",
+                            hour: ""
+                        };
+
+                        return {...day, actvs: [...day.actvs, newActv]}
                     }
                     return day;
                 })
@@ -153,9 +153,13 @@ function PlanDetails() {
             if (plan.name === planName) {
                 const updatedDays = plan.days.map(day => {
                     if (day.id === dayId) {
-                        const newActivities = [...day.activities];
-                        newActivities[activityIndex] = newValue;
-                        return { ...day, activities: newActivities };
+                        const updatedActvs = day.actvs.map(item => {
+                            if (item.id === activityIndex) {
+                                return {...item, activity: newValue}
+                            }
+                            return item;
+                        })
+                        return {...day, actvs: updatedActvs};
                     }
                     return day;
                 })
@@ -172,9 +176,13 @@ function PlanDetails() {
             if (plan.name === planName) {
                 const updatedDays = plan.days.map(day => {
                     if (day.id === dayId) {
-                        const newHours = [...day.hours];
-                        newHours[activityIndex] = newValue;
-                        return {...day, hours: newHours };
+                        const updatedHours = day.actvs.map(item => {
+                            if (item.id === activityIndex) {
+                                return {...item, hour: newValue}
+                            }
+                            return item;
+                        })
+                        return {...day, actvs: updatedHours };
                     }
                     return day;
                 })
@@ -251,6 +259,29 @@ function PlanDetails() {
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
     }
 
+    const stopEditPack = () => {
+        setIsEditPackOpen(false);
+    }
+
+    const editPack = (packToEdit: number, newName: string) => {
+        const updatedPlans = allPlans.map(plan => {
+            if (plan.name === planName) {
+                const updatedPacks = plan.packs.map(pack => {
+                    if (pack.id === packToEdit) {
+                        return { ...pack, name: newName };
+                    }
+                    return pack;
+                })
+                return { ...plan, packs: updatedPacks };
+            }
+            return plan;
+        })
+        setAllPlans(updatedPlans);
+        localStorage.setItem('myTravelPlans', JSON.stringify(updatedPlans));
+        setIsEditPackOpen(false);
+        setNewPackName("");
+    }
+
     const addStuffField = (packId: number) => {
         const updatedPlans = allPlans.map(plan => {
             if (plan.name === planName) {
@@ -264,7 +295,7 @@ function PlanDetails() {
 
                         return {
                             ...pack,
-                            stuff: [...pack.stuff, newStuff] // Dodajemy obiekt do tablicy
+                            stuff: [...pack.stuff, newStuff]
                         };
                     }
                     return pack;
@@ -278,7 +309,25 @@ function PlanDetails() {
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
     };
 
-    /*const changeDone = (packId: number, stuffId: number) => {
+    const deleteStuff = (packId: number, stuffId: number) => {
+        const updatedPlans = allPlans.map(plan => {
+            if (plan.name === planName) {
+                const updatedPacks = plan.packs.map(pack => {
+                    if (pack.id === packId) {
+                        const updatedStuff = pack.stuff.filter(item => item.id !== stuffId);
+                        return { ...pack, stuff: updatedStuff };
+                    }
+                    return pack;
+                })
+                return { ...plan, packs: updatedPacks };
+            }
+            return plan;
+        })
+        setAllPlans(updatedPlans);
+        localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
+    }
+
+    const changeDone = (packId: number, stuffId: number) => {
         const updatedPlans = allPlans.map(plan => {
             if (plan.name === planName) {
                 const updatedPacks = plan.packs.map(pack => {
@@ -304,7 +353,7 @@ function PlanDetails() {
         })
         setAllPlans(updatedPlans);
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
-    }*/
+    }
 
     return (
         <div className="planDetails">
@@ -347,14 +396,14 @@ function PlanDetails() {
                                     </div>
 
                                     <div className="actvSpace">
-                                        {day.activities.map((text, index) => (
+                                        {day.actvs.map((item, index) => (
                                             <div className="spaceWrapper" key={index}>
                                                 <input
                                                     className="hourInput"
                                                     type="text"
                                                     key={index}
-                                                    value={day.hours[index]}
-                                                    onChange={(e) => updateHour(day.id, index, e.target.value)}
+                                                    value={item.hour}
+                                                    onChange={(e) => updateHour(day.id, item.id, e.target.value)}
                                                     onKeyDown={(e) => {
                                                         if (e.key === 'Enter') {
                                                             (e.target as HTMLInputElement).blur();
@@ -365,12 +414,13 @@ function PlanDetails() {
                                                     className="actvInput"
                                                     type="text"
                                                     key={index}
-                                                    value={text}
-                                                    autoFocus={index === day.activities.length - 1 && text === ""}
-                                                    onChange={(e) => updateActivity(day.id, index, e.target.value)}
+                                                    value={item.activity}
+                                                    placeholder={index}
+                                                    autoFocus={index === day.actvs.length - 1 && item.activity === ""}
+                                                    onChange={(e) => updateActivity(day.id, item.id, e.target.value)}
                                                     onKeyDown={(e) => {
                                                         if (e.key === 'Enter') {
-                                                            if(index === day.activities.length - 1) {
+                                                            if(index === day.actvs.length - 1) {
                                                                 addActivityField(day.id)
                                                             }
                                                             else {
@@ -384,48 +434,25 @@ function PlanDetails() {
                                                     }}
                                                 />
 
-                                                <button className="delActvBtn" onClick={() => deleteActv(day.id, index)}>🗑️</button>
+                                                <button className="delActvBtn" onClick={() => deleteActv(day.id, item.id)}>🗑️</button>
                                             </div>
                                         ))}
 
                                         <button className="addActivityBtn" onClick={() => addActivityField(day.id)}>+</button>
                                     </div>
 
-                                    <button className="deleteDayBtn" onClick={(e) => {
+                                    <button className="deleteBtn" onClick={(e) => {
                                         e.stopPropagation();
                                         removeDay(day.id);
                                     }}>X</button>
 
                                     <button className="editDayBtn" onClick={() => {
-                                        setPlanToEditId(day.id);
+                                        setDayToEditId(day.id);
                                         setNewNameDay(day.name);
                                         setIsEditDayOpen(true);
                                     }}>✏️</button>
 
-                                    {isEditDayOpen && (
-                                        <div className="addDayWindow">
-                                            <div className="addDayHeader">
-                                                <button className="closeBtn" onClick={stopEditDay}>X</button>
 
-                                                <input
-                                                    type="text"
-                                                    id="name"
-                                                    placeholder="Nazwij dzień podróży..."
-                                                    value={newNameDay}
-                                                    autoFocus
-                                                    onChange={(e) => setNewNameDay(e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            (e.target as HTMLInputElement).blur();
-                                                            editDay(planToEditId as number, newNameDay);
-                                                        }
-                                                    }}
-                                                />
-
-                                                <button className="saveBtnAPW" onClick={() => editDay(planToEditId as number, newNameDay)}>Save</button>
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             ))}
                         </div>
@@ -454,32 +481,49 @@ function PlanDetails() {
                                     </div>
 
                                     <div className="mainPLSpace">
-                                        {pack.stuff.map((stuff) => (
+                                        {pack.stuff.map((stuff, index) => (
                                             <div className="plSpaceWrapper" key={stuff.id}>
-                                                <button className={ stuff.done === true ? "doneBtnActive" : "doneBtn"}>o</button>
+                                                <button className={ stuff.done === true ? "doneBtnActive" : "doneBtn"} onClick={() => changeDone(pack.id, stuff.id)}>o</button>
                                                 <input
                                                     className="plInput"
                                                     type="text"
                                                     key={stuff.id}
                                                     value={stuff.name}
+                                                    autoFocus
+                                                    placeholder={index}
                                                     onChange={(e) => updateStuff(pack.id, stuff.id, e.target.value)}
                                                     onKeyDown={(e) => {
                                                         if (e.key === 'Enter') {
-                                                            (e.target as HTMLInputElement).blur();
+                                                            if(index === pack.stuff.length - 1) {
+                                                                addStuffField(pack.id)
+                                                            }
+                                                            else {
+                                                                const nextInput = (e.target as HTMLInputElement)
+                                                                    .closest('.plSpaceWrapper')
+                                                                    ?.nextElementSibling
+                                                                    ?.querySelector('.plInput') as HTMLInputElement;
+                                                                nextInput?.focus();
+                                                            }
                                                         }
                                                     }}
                                                 />
-                                                <button className="delActvBtn" /*onClick={() => deleteStuff(pack.id, index)}*/>🗑️</button>
+                                                <button className="delActvBtn" onClick={() => deleteStuff(pack.id, stuff.id)}>🗑️</button>
                                             </div>
                                         ))}
                                     </div>
 
                                     <button className="addActivityBtn" onClick={() => addStuffField(pack.id)}>+</button>
 
-                                    <button className="deleteDayBtn" onClick={(e) => {
+                                    <button className="deleteBtn" onClick={(e) => {
                                         e.stopPropagation();
                                         removePack(pack.id);
                                     }}>X</button>
+
+                                    <button className="editDayBtn" onClick={() => {
+                                        setPackToEditId(pack.id);
+                                        setNewPackName(pack.name);
+                                        setIsEditPackOpen(true);
+                                    }}>✏️</button>
 
                                 </div>
                             ))}
@@ -513,7 +557,7 @@ function PlanDetails() {
                             }}
                         />
 
-                        <button className="saveBtnAPW" onClick={addDay}>Save</button>
+                        <button className="saveBtn" onClick={addDay}>Save</button>
                     </div>
                 </div>
             )}
@@ -538,7 +582,57 @@ function PlanDetails() {
                             }}
                         />
 
-                        <button className="saveBtnAPW" onClick={() => addPack()}>Save</button>
+                        <button className="saveBtn" onClick={() => addPack()}>Save</button>
+                    </div>
+                </div>
+            )}
+
+            {isEditDayOpen && (
+                <div className="addDayWindow">
+                    <div className="addDayHeader">
+                        <button className="closeBtn" onClick={stopEditDay}>X</button>
+
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Nazwij dzień podróży..."
+                            value={newNameDay}
+                            autoFocus
+                            onChange={(e) => setNewNameDay(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    (e.target as HTMLInputElement).blur();
+                                    editDay(dayToEditId as number, newNameDay);
+                                }
+                            }}
+                        />
+
+                        <button className="saveBtn" onClick={() => editDay(dayToEditId as number, newNameDay)}>Save</button>
+                    </div>
+                </div>
+            )}
+
+            {isEditPackOpen && (
+                <div className="addDayWindow">
+                    <div className="addDayHeader">
+                        <button className="closeBtn" onClick={stopEditPack}>X</button>
+
+                        <input
+                            type="text"
+                            id="name"
+                            placeholder="Nazwij dzień podróży..."
+                            value={newPackName}
+                            autoFocus
+                            onChange={(e) => setNewPackName(e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    (e.target as HTMLInputElement).blur();
+                                    editPack(packToEditId as number, newPackName);
+                                }
+                            }}
+                        />
+
+                        <button className="saveBtn" onClick={() => editPack(packToEditId as number, newPackName)}>Save</button>
                     </div>
                 </div>
             )}
