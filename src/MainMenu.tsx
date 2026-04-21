@@ -30,13 +30,13 @@ function MainMenu() {
                 setNumberOfDays(0);
             }
 
-            const initialDays: Day = Array.from({length: numberOfDays}, (_, index) => ({
+            const initialDays: Day[] = Array.from({length: numberOfDays || 0}, (_, index) => ({
                 id: Date.now() + index,
                 name: `Dzień ${index + 1}`,
                 actvs: []
             }));
 
-            const initialPacks: PackList = Array.from({length: numberOfPeople}, (_, index) => ({
+            const initialPacks: PackList[] = Array.from({length: numberOfPeople || 0}, (_, index) => ({
                 id: Date.now() + index,
                 name: `Osoba ${index + 1}`,
                 stuff: []
@@ -170,7 +170,7 @@ function MainMenu() {
                                 type="number"
                                 min="0"
                                 className="numberInput"
-                                onChange={(e) => setNumberOfDays(e.target.value)}
+                                onChange={(e) => setNumberOfDays(Number(e.target.value))}
                             />
                         </div>
 
@@ -180,7 +180,7 @@ function MainMenu() {
                                 type="number"
                                 min="0"
                                 className="numberInput"
-                                onChange={(e) => setNumberOfPeople(e.target.value)}
+                                onChange={(e) => setNumberOfPeople(Number(e.target.value))}
                             />
                         </div>
 

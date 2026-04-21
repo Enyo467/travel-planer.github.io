@@ -614,7 +614,7 @@ function SortableDay ({day, updateHour, updateActivity, addActivityField, delete
             </div>
 
             <div className="actvSpace">
-                {day.actvs.map((item, index) => (
+                {day.actvs.map((item: Actv, index: number) => (
                     <div className="spaceWrapper" key={index}>
                         <input
                             className="hourInput"
@@ -705,7 +705,7 @@ function SortablePack ({pack, changeDone, updateStuff, addStuffField, deleteStuf
             </div>
 
             <div className="mainPLSpace">
-                {pack.stuff.map((stuff, index) => (
+                {pack.stuff.map((stuff: StuffList, index: number) => (
                     <div className="plSpaceWrapper" key={stuff.id}>
                         <button className={ stuff.done === true ? "doneBtnActive" : "doneBtn"} onPointerDown={stopPropagation} onClick={() => changeDone(pack.id, stuff.id)}>o</button>
                         <input
