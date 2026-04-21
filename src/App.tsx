@@ -8,6 +8,7 @@ function App() {
         <Routes>
             <Route path="/" element={<MainMenu />} />
             <Route path="/plan/:planName" element={<PlanDetails />} />
+            <Route path="*" element={<MainMenu />} />
         </Routes>
     )
 }
