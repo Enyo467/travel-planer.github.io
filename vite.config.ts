@@ -4,5 +4,5 @@ import react from '@vitejs/plugin-react'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/travel-planer.github.io/', // ZAMIEŃ NA NAZWĘ SWOJEGO REPO NA GITHUBIE!
+  base: '/travel-planer.github.io/',
 })

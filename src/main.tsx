@@ -6,7 +6,7 @@ import { HashRouter } from 'react-router-dom'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-      <HashRouter basename="/travel-planer.github.io">
+      <HashRouter>
           <App />
       </HashRouter>
   </StrictMode>,
