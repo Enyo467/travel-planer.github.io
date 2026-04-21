@@ -4,6 +4,8 @@ import './PackListStyle.css'
 import {useState} from "react";
 import { useParams, useNavigate } from 'react-router-dom';
 import type { PlanT, Day, PackList, StuffList, Actv } from './types';
+import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
 
 type TabType= 'plan' | 'finanse' | 'info' | 'pack';
 
@@ -355,6 +357,36 @@ function PlanDetails() {
         localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
     }
 
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+
+        if (over && active.id !== over.id) {
+            const updatedPlans = allPlans.map(plan => {
+                if (plan.name === planName) {
+                    const oldIndex = plan.days.findIndex(d => d.id === active.id);
+                    const newIndex = plan.days.findIndex(d => d.id === over.id);
+
+                    return {
+                        ...plan,
+                        days: arrayMove(plan.days, oldIndex, newIndex)
+                    };
+                }
+                return plan;
+            });
+
+            setAllPlans(updatedPlans);
+            localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
+        }
+    };
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 10,
+            },
+        })
+    );
+
     return (
         <div className="planDetails">
             <div className="top">
@@ -385,82 +417,32 @@ function PlanDetails() {
                 </button>
             </div>
 
-            <div className="tab">
+            <div className="tab" style={{maxHeight: '100vh'}}>
                 {activeTab === 'plan' && (
-                    <div className="days" style={{backgroundColor: '#FFECEB', display: 'flex', gap: '10px', overflowX: 'auto', alignItems: 'center', marginLeft: '30px', marginRight: '20px', width: '100vw' }}>
-                        <div className="newDays" style={{display: 'flex', flexDirection: 'row', gap: '20px'}}>
-                            {currentPlan.days.map((day) => (
-                                <div key={day.id} className="dayWrapper" style={{position: 'relative'}}>
-                                    <div className="nameDayCon">
-                                        <h2 className="dayName">{day.name}</h2>
-                                    </div>
-
-                                    <div className="actvSpace">
-                                        {day.actvs.map((item, index) => (
-                                            <div className="spaceWrapper" key={index}>
-                                                <input
-                                                    className="hourInput"
-                                                    type="text"
-                                                    key={index}
-                                                    value={item.hour}
-                                                    onChange={(e) => updateHour(day.id, item.id, e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            (e.target as HTMLInputElement).blur();
-                                                        }
-                                                    }}
-                                                />
-                                                <input
-                                                    className="actvInput"
-                                                    type="text"
-                                                    key={index}
-                                                    value={item.activity}
-                                                    placeholder={index}
-                                                    autoFocus={index === day.actvs.length - 1 && item.activity === ""}
-                                                    onChange={(e) => updateActivity(day.id, item.id, e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            if(index === day.actvs.length - 1) {
-                                                                addActivityField(day.id)
-                                                            }
-                                                            else {
-                                                                const nextInput = (e.target as HTMLInputElement)
-                                                                    .closest('.spaceWrapper')
-                                                                    ?.nextElementSibling
-                                                                    ?.querySelector('.actvInput') as HTMLInputElement;
-                                                                nextInput?.focus();
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-
-                                                <button className="delActvBtn" onClick={() => deleteActv(day.id, item.id)}>🗑️</button>
-                                            </div>
-                                        ))}
-
-                                        <button className="addActivityBtn" onClick={() => addActivityField(day.id)}>+</button>
-                                    </div>
-
-                                    <button className="deleteBtn" onClick={(e) => {
-                                        e.stopPropagation();
-                                        removeDay(day.id);
-                                    }}>X</button>
-
-                                    <button className="editDayBtn" onClick={() => {
-                                        setDayToEditId(day.id);
-                                        setNewNameDay(day.name);
-                                        setIsEditDayOpen(true);
-                                    }}>✏️</button>
-
-
-                                </div>
-                            ))}
-                        </div>
-
-                        <button className="addDayBtn" onClick={() => setIsAddDayOpen(true)}>
-                            +
-                        </button>
-
+                    <div className="days" style={{backgroundColor: '#FFECEB', display: 'flex', gap: '10px', overflowX: 'auto', alignItems: 'center', marginLeft: '30px', marginRight: '20px', width: '100vw', maxHeight:'100vh' }}>
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <div className="newDays" style={{display: 'flex', flexDirection: 'row', gap: '20px', maxHeight:'100vh'}}>
+                                <SortableContext items={currentPlan.days.map(d => d.id)} strategy={rectSortingStrategy}>
+                                    {currentPlan.days.map((day) => (
+                                        <SortableDay
+                                            key={day.id}
+                                            day={day}
+                                            updateHour={updateHour}
+                                            updateActivity={updateActivity}
+                                            addActivityField={addActivityField}
+                                            deleteActv={deleteActv}
+                                            removeDay={removeDay}
+                                            setDayToEditId={setDayToEditId}
+                                            setNewNameDay={setNewNameDay}
+                                            setIsEditDayOpen={setIsEditDayOpen}
+                                        />
+                                    ))}
+                                </SortableContext>
+                                <button className="addDayBtn" onClick={() => setIsAddDayOpen(true)}>
+                                    +
+                                </button>
+                            </div>
+                        </DndContext>
                     </div>
                 )}
                 {activeTab === 'finanse' && (
@@ -473,66 +455,29 @@ function PlanDetails() {
                 )}
                 {activeTab === 'pack' && (
                     <div className="packs" style={{backgroundColor: '#FFECEB', display: 'flex', gap: '10px', overflowX: 'auto', marginLeft: '30px', width: '100vw' }}>
-                        <div className="newPacks" style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px'}}>
-                            {currentPlan.packs.map((pack) => (
-                                <div key={pack.id} className="packWrapper" style={{position: 'relative'}}>
-                                    <div className="namePackCon">
-                                        <h2 className="packName">{pack.name}</h2>
-                                    </div>
-
-                                    <div className="mainPLSpace">
-                                        {pack.stuff.map((stuff, index) => (
-                                            <div className="plSpaceWrapper" key={stuff.id}>
-                                                <button className={ stuff.done === true ? "doneBtnActive" : "doneBtn"} onClick={() => changeDone(pack.id, stuff.id)}>o</button>
-                                                <input
-                                                    className="plInput"
-                                                    type="text"
-                                                    key={stuff.id}
-                                                    value={stuff.name}
-                                                    autoFocus
-                                                    placeholder={index}
-                                                    onChange={(e) => updateStuff(pack.id, stuff.id, e.target.value)}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === 'Enter') {
-                                                            if(index === pack.stuff.length - 1) {
-                                                                addStuffField(pack.id)
-                                                            }
-                                                            else {
-                                                                const nextInput = (e.target as HTMLInputElement)
-                                                                    .closest('.plSpaceWrapper')
-                                                                    ?.nextElementSibling
-                                                                    ?.querySelector('.plInput') as HTMLInputElement;
-                                                                nextInput?.focus();
-                                                            }
-                                                        }
-                                                    }}
-                                                />
-                                                <button className="delActvBtn" onClick={() => deleteStuff(pack.id, stuff.id)}>🗑️</button>
-                                            </div>
-                                        ))}
-                                    </div>
-
-                                    <button className="addActivityBtn" onClick={() => addStuffField(pack.id)}>+</button>
-
-                                    <button className="deleteBtn" onClick={(e) => {
-                                        e.stopPropagation();
-                                        removePack(pack.id);
-                                    }}>X</button>
-
-                                    <button className="editDayBtn" onClick={() => {
-                                        setPackToEditId(pack.id);
-                                        setNewPackName(pack.name);
-                                        setIsEditPackOpen(true);
-                                    }}>✏️</button>
-
-                                </div>
-                            ))}
-                        </div>
-
-                        <button className="addDayBtn" onClick={() => setIsAddPackOpen(true)}>
-                            +
-                        </button>
-
+                        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                            <div className="newPacks" style={{display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '20px'}}>
+                                <SortableContext items={currentPlan.packs.map(p => p.id)} strategy={rectSortingStrategy}>
+                                    {currentPlan.packs.map((pack) => (
+                                        <SortablePack
+                                            key={pack.id}
+                                            pack={pack}
+                                            changeDone={changeDone}
+                                            updateStuff={updateStuff}
+                                            addStuffField={addStuffField}
+                                            deleteStuff={deleteStuff}
+                                            removePack={removePack}
+                                            setPackToEditId={setPackToEditId}
+                                            setNewPackName={setNewPackName}
+                                            setIsEditPackOpen={setIsEditPackOpen}
+                                        />
+                                    ))}
+                                </SortableContext>
+                                <button className="addDayBtn" onClick={() => setIsAddPackOpen(true)}>
+                                    +
+                                </button>
+                            </div>
+                        </DndContext>
                     </div>
                 )}
             </div>
@@ -638,6 +583,174 @@ function PlanDetails() {
             )}
         </div>
     );
+}
+
+function SortableDay ({day, updateHour, updateActivity, addActivityField, deleteActv, removeDay, setDayToEditId, setNewNameDay, setIsEditDayOpen } : any) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: day.id });
+
+    const style = {
+        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        transition: isDragging ? 'none' : transition, //WAŻNE DZIĘKI TEMU PŁYNNIE SIE PRZESUWA KAFELEK
+        zIndex: isDragging ? 1000 : 1, // Aby kafelek był nad innymi podczas ciągnięcia
+        opacity: isDragging ? 0.75 : 1,
+        position: 'relative' as const,
+        touchAction: 'none',
+    };
+
+    const stopPropagation = (e: React.PointerEvent | React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="dayWrapper"
+            {...attributes}
+            {...listeners}
+        >
+            <div className="nameDayCon">
+                <h2 className="dayName">{day.name}</h2>
+            </div>
+
+            <div className="actvSpace">
+                {day.actvs.map((item, index) => (
+                    <div className="spaceWrapper" key={index}>
+                        <input
+                            className="hourInput"
+                            type="time"
+                            key={index}
+                            value={item.hour}
+                            onPointerDown={stopPropagation}
+                            onChange={(e) => updateHour(day.id, item.id, e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    (e.target as HTMLInputElement).blur();
+                                }
+                            }}
+                        />
+                        <input
+                            className="actvInput"
+                            type="text"
+                            key={index}
+                            value={item.activity}
+                            autoFocus={index === day.actvs.length - 1 && item.activity === ""}
+                            onPointerDown={stopPropagation}
+                            onChange={(e) => updateActivity(day.id, item.id, e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    if(index === day.actvs.length - 1) {
+                                        addActivityField(day.id)
+                                    }
+                                    else {
+                                        const nextInput = (e.target as HTMLInputElement)
+                                            .closest('.spaceWrapper')
+                                            ?.nextElementSibling
+                                            ?.querySelector('.actvInput') as HTMLInputElement;
+                                        nextInput?.focus();
+                                    }
+                                }
+                            }}
+                        />
+
+                        <button className="delActvBtn" onPointerDown={stopPropagation} onClick={() => deleteActv(day.id, item.id)}>🗑️</button>
+                    </div>
+                ))}
+
+                <button className="addActivityBtn" onPointerDown={stopPropagation} onClick={() => addActivityField(day.id)}>+</button>
+            </div>
+
+            <button className="deleteBtn" onPointerDown={stopPropagation} onClick={(e) => {
+                e.stopPropagation();
+                removeDay(day.id);
+            }}>X</button>
+
+            <button className="editDayBtn" onPointerDown={stopPropagation} onClick={(e) => {
+                e.stopPropagation();
+                setDayToEditId(day.id);
+                setNewNameDay(day.name);
+                setIsEditDayOpen(true);
+            }}>✏️</button>
+
+        </div>
+    );
+}
+
+function SortablePack ({pack, changeDone, updateStuff, addStuffField, deleteStuff, removePack, setPackToEditId, setNewPackName, setIsEditPackOpen} : any) {
+    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: pack.id });
+
+    const style = {
+        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
+        transition: isDragging ? 'none' : transition, //WAŻNE DZIĘKI TEMU PŁYNNIE SIE PRZESUWA KAFELEK
+        zIndex: isDragging ? 1000 : 1, // Aby kafelek był nad innymi podczas ciągnięcia
+        opacity: isDragging ? 0.75 : 1,
+        position: 'relative' as const,
+        touchAction: 'none',
+    };
+
+    const stopPropagation = (e: React.PointerEvent | React.MouseEvent) => {
+        e.stopPropagation();
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="packWrapper"
+            {...attributes}
+            {...listeners}
+        >
+            <div className="namePackCon">
+                <h2 className="packName">{pack.name}</h2>
+            </div>
+
+            <div className="mainPLSpace">
+                {pack.stuff.map((stuff, index) => (
+                    <div className="plSpaceWrapper" key={stuff.id}>
+                        <button className={ stuff.done === true ? "doneBtnActive" : "doneBtn"} onPointerDown={stopPropagation} onClick={() => changeDone(pack.id, stuff.id)}>o</button>
+                        <input
+                            className="plInput"
+                            style={stuff.done === true ? {color: 'grey'} : {color: 'black'}}
+                            type="text"
+                            key={stuff.id}
+                            value={stuff.name}
+                            autoFocus
+                            onPointerDown={stopPropagation}
+                            onChange={(e) => updateStuff(pack.id, stuff.id, e.target.value)}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    if(index === pack.stuff.length - 1) {
+                                        addStuffField(pack.id)
+                                    }
+                                    else {
+                                        const nextInput = (e.target as HTMLInputElement)
+                                            .closest('.plSpaceWrapper')
+                                            ?.nextElementSibling
+                                            ?.querySelector('.plInput') as HTMLInputElement;
+                                        nextInput?.focus();
+                                    }
+                                }
+                            }}
+                        />
+                        <button className="delActvBtn" onPointerDown={stopPropagation} onClick={() => deleteStuff(pack.id, stuff.id)}>🗑️</button>
+                    </div>
+                ))}
+            </div>
+
+            <button className="addActivityBtn" onPointerDown={stopPropagation} onClick={() => addStuffField(pack.id)}>+</button>
+
+            <button className="deleteBtn" onPointerDown={stopPropagation} onClick={(e) => {
+                e.stopPropagation();
+                removePack(pack.id);
+            }}>X</button>
+
+            <button className="editDayBtn" onPointerDown={stopPropagation} onClick={() => {
+                setPackToEditId(pack.id);
+                setNewPackName(pack.name);
+                setIsEditPackOpen(true);
+            }}>✏️</button>
+        </div>
+    )
 }
 
 export default PlanDetails;

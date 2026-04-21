@@ -43,17 +43,22 @@ body {
   padding: 30px;
 }
 
-/*Pole dodanych planów i przycisku usuwania*/
+.text {
+  color: black;
+}
+/*Pole dodanych planów i przycisku usuwania i edytowania*/
 .planWrapper {
   width: 250px;
   height: 180px;
   animation: popIn 0.3s ease;
+  will-change: transform;
+  backface-visibility: hidden;
 }
 
 .planWrapper:hover {
   transform: translate(5px, -5px);
   transition: 0.3s;
-  box-shadow: -10px 10px 10px #F7E0DF;
+  /*box-shadow: -10px 10px 10px #F7E0DF;*/
 }
 
 /*Dodany plan*/
@@ -137,14 +142,23 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
+  border: 2px solid black;
 }
 
 /*Pole do wpisania nazwy planu*/
-.nameAPW input {
-  background-color: lightgray;
-  padding: 3px;
+.namePlanInput {
+  width: 80%;
+  padding: 12px 6px;
+  margin: 5px 0;
+  margin-left: 10px;
+  border: 1px solid #FFECEB;
+  background-color: #FFECEB;
+  border-bottom-color: black;
+  font-size: 14px;
+  transition: all 0.2s;
+  box-sizing: border-box;
   color: black;
-  margin-bottom: 5px;
+  align-self: center;
 }
 
 /*Przycisk do zamknięcia dodawania planu*/
@@ -166,6 +180,8 @@ body {
 
 /*Przycisk zapisu dodawania planu*/
 .saveBtn {
+  width: 30%;
+  align-self: center;
   background-color: #DDC6DE;
   border-radius: 15px;
   padding: 3px;
@@ -177,6 +193,34 @@ body {
   background-color: #F7E0DF;
 }
 
+/*Wpisanie liczby dni*/
+.numberInput {
+  width: 20%;
+  padding: 12px 6px;
+  border: 1px solid #FFECEB;
+  background-color: #FFECEB;
+  border-bottom-color: black;
+  font-size: 14px;
+  transition: all 0.2s;
+  box-sizing: border-box;
+  color: black;
+  right: 0;
+}
+
+.nameAPW input:focus {
+  background-color: #FFF9F7;
+  border-color: grey;
+  border-radius: 15px;
+  outline: none;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.inputy {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+}
 /*Animacja pojawiania się planu*/
 @keyframes popIn {
   0% { transform: scale(0.5); opacity: 0; }

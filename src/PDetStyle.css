@@ -19,7 +19,7 @@
     justify-content: space-between;
 }
 
-/*Nie włączony przycisk*/
+/*Nie włączony przycisk nawigacji*/
 .navBtn {
     background-color: #FFF3F2;
     color: black;
@@ -28,7 +28,7 @@
     border: 1px solid black;
 }
 
-/*Włączony przycisk*/
+/*Włączony przycisk nawigacji*/
 .navBtnActive {
     background-color: #F7E0DF;
     color: black;
@@ -63,7 +63,6 @@
     border: 2px solid black;
     border-radius: 30px;
     margin-top: 40px;
-
 }
 
 .addDayBtn:hover {
@@ -87,7 +86,7 @@
     z-index: 1000; /* Musi być wyżej niż reszta strony */
 }
 
-/*Okno dodawania planu*/
+/*Okno dodawania dnia*/
 .addDayHeader {
     background-color: #FFECEB;
     padding: 50px;
@@ -95,6 +94,7 @@
     display: flex;
     flex-direction: column;
     position: relative;
+    border: 2px solid black;
 }
 
 /*Pole do wpisania nazwy dnia*/
