@@ -1,0 +1,81 @@
+.time-select {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    flex-shrink: 0;
+}
+
+
+/* Trigger button */
+.ts-dropdown {
+    position: relative;
+}
+
+.ts-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    width: 46px;
+    height: 26px;
+}
+
+.ts-trigger--single {
+    width: 62px;
+    background: var(--light-pink);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    font-family: inherit;
+    cursor: pointer;
+    transition: background 0.2s;
+    padding: 0 4px;
+}
+
+.ts-trigger:hover,
+.ts-trigger--open {
+    background: var(--primary-pink);
+}
+
+.ts-arrow {
+    font-size: 0.7rem;
+    line-height: 1;
+}
+
+/* Lista opcji — renderowana w body przez portal */
+.ts-list {
+    position: absolute;
+    z-index: 9999;
+    background: white;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: none;
+    overflow-y: auto;
+    /* 4 opcje × 32px = 128px */
+    max-height: 128px;
+    min-width: 52px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-pink) transparent;
+}
+
+.ts-option {
+    padding: 4px 10px;
+    height: 32px;
+    line-height: 24px;
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--text-color);
+    cursor: pointer;
+    text-align: center;
+    transition: background 0.15s;
+}
+
+.ts-option:hover {
+    background: var(--light-pink);
+}
+
+.ts-option--active {
+    background: var(--primary-pink);
+}

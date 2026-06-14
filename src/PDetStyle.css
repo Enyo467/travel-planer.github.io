@@ -1,267 +1,604 @@
-/*Przycisk powrotu do menu głównego*/
-.backToMM {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    background-color: #F7E0DF;
-    width: 70px;
-    height: 70px;
-    color: black;
-    border-color: black;
-    border-radius: 15px;
-}
-
-/*NAWIGACJA (ZAKŁADKI)*/
-/*Kontener nawigacji*/
-.nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-}
-
-/*Nie włączony przycisk nawigacji*/
-.navBtn {
-    background-color: #FFF3F2;
-    color: black;
-    width: stretch;
-    height: 40px;
-    border: 1px solid black;
-}
-
-/*Włączony przycisk nawigacji*/
-.navBtnActive {
-    background-color: #F7E0DF;
-    color: black;
-    width: stretch;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    border: 1px solid black;
-}
-
-/*ZAKŁADKA*/
-/*Kontener zakładki*/
-.tab {
-    display: flex;
-    flex-direction: row;
-    color: black;
-    width: 100vw;
-    height: 100%;
-    align-self: center;
-}
-
-
-/*PLAN DNIA*/
-
-/*DODAWANIE DNIA*/
-/*Przycisk dodania dnia*/
-.addDayBtn {
-    background-color: #FFF3F2;
-    align-self: center;
-    width: 70px;
-    height: 70px;
-    color: black;
-    border: 2px solid black;
-    border-radius: 30px;
-    margin-top: 40px;
-}
-
-.addDayBtn:hover {
-    background-color: #F7E0DF;
-    transform: translate(5px, -5px);
-    transition: 0.3s;
-    box-shadow: -10px 10px 10px #F7E0DF;
-}
-
-/*Tło pod dodawaniem dnia*/
-.addDayWindow {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* Półprzezroczysta czerń */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000; /* Musi być wyżej niż reszta strony */
-}
-
-/*Okno dodawania dnia*/
-.addDayHeader {
-    background-color: #FFECEB;
-    padding: 50px;
-    border-radius: 15px;
+/* Detail View Styling */
+.plan-details-container {
     display: flex;
     flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+    background-color: white;
+}
+
+.details-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 15px 40px;
+    background: #FFECEE;
+}
+
+.details-header .back-btn {
+    justify-self: start;
+}
+
+.drip-divider {
+    width: 100%;
+    line-height: 0;
+    margin-top: -1px;
+    filter: drop-shadow(0px 6px 4px rgba(0,0,0,0.1));
+}
+
+.drip-divider svg {
+    width: 100%;
+    height: 60px;
+    display: block;
+}
+
+.details-header .title {
+    justify-self: end;
+    text-align: right;
+}
+
+.plan-title-badge {
+    margin: 0;
+    font-size: 1.2rem;
+    background: white;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 24px;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.12);
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+    text-shadow: none;
+    letter-spacing: normal;
+}
+
+.back-btn {
+    background-color: white;
+    border: none;
+    border-radius: 25px;
+    padding: 12px 28px;
+    font-weight: bold;
+    font-size: 1.05rem;
+    cursor: pointer;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.12);
+    transition: all 0.2s;
+}
+
+.back-btn:hover {
+    background-color: var(--light-pink);
+    transform: scale(1.07);
+    box-shadow: 3px 5px 12px rgba(0,0,0,0.16);
+}
+
+.tabs-nav {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
     position: relative;
-    border: 2px solid black;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: inline-block;
 }
 
-/*Pole do wpisania nazwy dnia*/
-.addDayHeader input {
-    background-color: lightgray;
-    padding: 3px;
-    color: black;
-    margin-bottom: 5px;
+.tab-btn:hover:not(.active) {
+    transform: scale(1.1);
 }
 
-/*DODANY DZIEŃ*/
-.dayWrapper {
-    background-color: #FFF3F2;
-    width: 25vw;
-    height: 70vh;
-    border: 2px solid black;
-    border-radius: 30px;
-    margin-top: 40px;
+.tab-btn.active {
+    transform: scale(1.1);
 }
 
-/*Pole nazwy dnia*/
-.nameDayCon {
+.cloud-svg {
+    display: block;
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.08));
+    transition: filter 0.3s;
+}
+
+.tab-btn.active .cloud-svg {
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.08));
+}
+
+.tab-btn:hover:not(.active) .cloud-svg {
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.08));
+}
+
+.cloud-path {
+    fill: white;
+    stroke: none;
+    transition: fill 0.3s;
+}
+
+.tab-btn.active .cloud-path {
+    fill: var(--light-pink);
+}
+
+.tab-btn:hover:not(.active) .cloud-path {
+    fill: var(--light-pink);
+}
+
+.cloud-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text-color);
+    pointer-events: none;
+    padding-top: 18px;
+}
+
+
+
+.tab-content {
+    flex: 1;
+    padding: 20px 40px 30px 40px;
+    overflow: hidden;
+    display: flex;
+    gap: 30px;
+}
+
+/* Layout zakładki Plan Dnia */
+.plan-tab-layout {
+    display: flex;
+    gap: 100px;
+    flex: 1;
+    min-width: 0;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+}
+
+.mini-days-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 390px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+    padding: 4px 20px 20px 12px;
+    max-height: calc(100vh - 200px);
+    align-self: flex-start;
+}
+
+.mini-days-panel::-webkit-scrollbar {
+    display: none;
+}
+
+.mini-add-btn {
+    min-width: unset !important;
+    width: 100%;
+    height: 50px !important;
+    font-size: 2rem !important;
+    flex-shrink: 0;
+    box-sizing: border-box;
+}
+
+.day-detail-panel {
+    flex: 0 0 380px;
+    width: 380px;
+    max-height: calc(100vh - 230px);
     display: flex;
     flex-direction: column;
 }
 
-/*Nazwa dnia*/
-.dayName {
-    color: black;
-    align-self: center;
-}
-
-/*Przycisk usunięcia dnia*/
-.deleteBtn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    border-radius: 15px;
-    width: 30px;
-    height: 30px;
-    background-color: #DDC6DE;
-    justify-content: center;
-    align-items: center;
-    border: 2px solid black;
-    color: black;
-}
-
-.deleteBtn:hover {
-    background-color: #F7E0DF;
-}
-
-/*Przycisk edycji nazwy dnia*/
-.editDayBtn {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    border-radius: 15px;
-    width: 30px;
-    height: 30px;
-    background-color: #DDC6DE;
+.day-detail-empty {
     display: flex;
-    justify-content: center;
     align-items: center;
-    border: 2px solid black;
+    justify-content: center;
+    height: 200px;
+    color: #aaa;
+    font-size: 1.2rem;
+    font-style: italic;
 }
 
-.editDayBtn:hover {
-    background-color: #F7E0DF;
+/* Mini karteczka dnia */
+.mini-day-card {
+    background-color: #fffdf0;
+    background-image:
+        linear-gradient(90deg, transparent 39px, #abced4 39px, #abced4 41px, transparent 41px),
+        linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-size: 100% 32px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 32px 10px 16px 50px;
+    position: relative;
+    box-shadow: 3px 3px 10px rgba(0,0,0,0.08);
+    cursor: pointer;
+    height: 112px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    transition: box-shadow 0.2s, transform 0.2s;
+    overflow: hidden;
 }
 
-/*Kontener w którym są (kilka) godzin, nazwy aktywności i przyciski usunięć aktywności i godzin tych aktywności*/
-.actvSpace {
-    width: 100%;
+.mini-day-card::before {
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background-image:
+        radial-gradient(circle, white 9px, transparent 10px),
+        radial-gradient(circle, rgba(0,0,0,0.1) 10px, transparent 11px);
+    background-size: 32px 32px;
+    background-position: center center, calc(50% + 1px) calc(50% + 1px);
+    z-index: 5;
+}
+
+.mini-day-card:hover {
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.14);
+    transform: translateX(3px);
+}
+
+.mini-day-card--active {
+    box-shadow: 4px 4px 12px rgba(0,0,0,0.18);
+    border-left: 4px solid var(--primary-pink);
+    transform: translateX(3px);
+}
+
+.mini-day-card__name {
+    font-family: 'Georgia', serif;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #444;
+    line-height: 32px;
+    height: 32px;
+    border-bottom: 2px solid #ffc1cc;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-right: 30px;
+}
+
+.mini-day-settings {
+    top: 28px !important;
+    right: 6px !important;
+}
+
+/* Day/Pack Card Styling - Notebook Page Style */
+.detail-card {
+    background-color: #fffdf0;
+    background-image:
+        linear-gradient(90deg, transparent 39px, #abced4 39px, #abced4 41px, transparent 41px);
+    background-size: 100% 32px;
+    min-width: 380px;
+    max-width: 380px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 32px 35px 20px 50px; /* Padding góra 32px - wielokrotność linii */
+    position: relative;
+    box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
+    flex: 1;
+    min-height: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow: hidden;
 }
 
-/*Przycisk dodania aktywności w planie dnia*/
-.addActivityBtn {
-    align-self: center;
-    border-radius: 15px;
-    width: 30px;
-    height: 30px;
-    background-color: #DDC6DE;
-    border: 2px solid black;
-    color: black;
+/* Dodatkowy efekt "dziurek od kołonotatnika" u góry */
+.detail-card::before {
+    content: "";
+    position: absolute;
+    top: 4px;
+    left: 0;
+    right: 0;
+    height: 24px;
+    background-image:
+        radial-gradient(circle, white 9px, transparent 10px),
+        radial-gradient(circle, rgba(0,0,0,0.1) 10px, transparent 11px);
+    background-size: 32px 32px;
+    background-position: center center, calc(50% + 1px) calc(50% + 1px);
+    z-index: 5;
 }
 
-.addActivityBtn:hover {
-    background-color: #F7E0DF;
+.card-title {
+    font-size: 2.2rem;
+    height: 64px;
+    line-height: 64px;
+    margin: 0 0 32px 0;
+    text-align: left;
+    border-bottom: 2px solid #ffc1cc;
+    box-sizing: border-box;
+    font-family: 'Georgia', serif;
+    color: #444;
 }
 
-/*Kontener w którym jest pojedyncza aktywność, godzina i przycisk usunięcia*/
-.spaceWrapper {
-    width: 100%;
-    background-color: #FFF3F2;
-    align-self: center;
+.card-title--center {
+    text-align: center;
+}
+
+.detail-card--auto {
+    flex: 0 0 auto;
+    height: fit-content;
+    max-height: calc(100vh - 230px);
+    overflow: hidden;
+}
+
+.detail-card--auto .activity-list {
+    flex: 0 0 auto;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: calc(100vh - 400px);
+    margin-left: -48px;
+    padding-left: 48px;
+}
+
+.activity-list {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
+    flex: 1;
+    gap: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    margin-bottom: 20px;
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary-pink) transparent;
+    /* Rozszerzamy listę w lewo żeby margines z uchwytem był wewnątrz kontenera */
+    margin-left: -48px;
+    padding-left: 48px;
+    scroll-snap-type: y mandatory;
+    padding-bottom: 32px;
+    /* Linie razem z treścią — zawsze idealnie pod tekstem bez względu na sposób scrollowania */
+    background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px);
+    background-size: 100% 32px;
+    background-attachment: local;
+    background-position: 0 0;
+}
+
+.activity-item, .packing-item {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    min-height: 32px;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    position: relative;
+    width: 100%;
+    scroll-snap-align: start;
+}
+
+.hour-input, .activity-input, .item-input {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 5px !important;
+    line-height: 32px !important;
+    height: 32px;
+    color: #333;
+    font-family: inherit;
+    margin: 0;
+    resize: none;
+    box-sizing: border-box;
+}
+
+.hour-input {
+    width: 95px; /* Zwiększono z 90px */
+    font-size: 1.05rem; /* Zmniejszono z 1.2rem dla godziny */
+    font-weight: bold;
+    color: #777;
+    flex-shrink: 0;
+}
+
+.activity-input, .item-input {
+    flex: 1;
+    font-size: 1.2rem;
+    word-break: break-word;
+    white-space: pre-wrap;
+    overflow: hidden;
+    height: auto;
+    min-height: 32px;
+    padding-right: 4px !important;
+}
+
+/* Ikona usunięcia - ręczny styl zamiast systemowego przycisku */
+.icon-btn {
+    width: 22px;
+    height: 22px;
+    display: flex;
     align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 0;
+    filter: brightness(0);
+    flex-shrink: 0;
+    margin-left: auto;
 }
 
-/*.spaceWrapper input {
-    padding: 12px 15px;
-    margin: 5px 0;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    background-color: #fafafa;
-    font-size: 14px;
-    transition: all 0.2s;
-    box-sizing: border-box;
-    color: black;
-    align-self: center;
-}*/
-
-.hourInput {
-    width: 20%;
-    padding: 12px 6px;
-    margin: 5px 0;
-    margin-left: 10px;
-    border: 1px solid #FFF3F2;
-    background-color: #FFF3F2;
-    border-bottom-color: black;
-    font-size: 14px;
-    transition: all 0.2s;
-    box-sizing: border-box;
-    color: black;
-    align-self: center;
+.icon-btn:hover {
+    opacity: 1;
+    filter: brightness(0) saturate(100%) invert(14%) sepia(100%) saturate(7000%) hue-rotate(0deg) brightness(95%);
 }
 
-.actvInput {
-    width: 80%;
-    padding: 12px 6px;
-    margin: 5px 0;
-    margin-left: 10px;
-    border: 1px solid #FFF3F2;
-    background-color: #FFF3F2;
-    border-bottom-color: black;
-    font-size: 14px;
-    transition: all 0.2s;
-    box-sizing: border-box;
-    color: black;
-    align-self: center;
-}
 
-.spaceWrapper input:focus {
-    background-color: #FFF9F7;
-    border-color: grey;
-    border-radius: 15px;
+.activity-input:focus, .item-input:focus {
+    background-color: rgba(255, 193, 204, 0.25) !important;
     outline: none;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    border-radius: 6px;
 }
 
-/*Przycisk usunięcia aktywności*/
-.delActvBtn {
-    margin-left: 10px;
-    margin-right: 10px;
-    border-radius: 15px;
+.add-item-btn {
+    position: absolute;
+    top: 30px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    color: var(--text-color);
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    padding: 0;
+    line-height: 1;
+    z-index: 100;
+}
+
+.add-item-btn:hover {
+    transform: scale(1.3);
+}
+
+.settings-container {
+    position: absolute;
+    top: 30px;
+    right: 15px;
+    z-index: 100;
+}
+
+.settings-btn {
+    background: transparent;
+    border: none;
     width: 30px;
     height: 30px;
-    background-color: #DDC6DE;
+    display: flex;
+    justify-content: center;
     align-items: center;
-    border: 2px solid black;
-    color: black;
+    font-size: 1.4rem;
+    cursor: pointer;
+    opacity: 0.6; /* Niższa opacitiy sprawia, że czarny staje się ciemnoszary na tym tle */
+    transition: all 0.2s;
+    filter: brightness(0); /* Wymusza czarny, który przez opacity 0.6 da efekt ciemnoszarego */
 }
 
-.delActvBtn:hover {
-    background-color: #F7E0DF;
+.settings-btn:hover {
+    opacity: 1;
+    transform: rotate(90deg);
+}
+
+
+.settings-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: white;
+    border: 3px solid var(--border-color);
+    border-radius: 15px;
+    box-shadow: 2px 3px 8px rgba(0,0,0,0.12);
+    z-index: 101;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 160px;
+}
+
+.menu-item {
+    padding: 12px 15px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.2s;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.menu-item:hover {
+    background: var(--light-pink);
+}
+
+.menu-item.delete {
+    color: #ff4d4d;
+    border-top: 1px solid var(--secondary-pink);
+}
+
+.menu-item.delete:hover {
+    background: #fff0f0;
+}
+
+/* Uchwyt przeciągania aktywności — na marginesie, po lewej od niebieskiej kreski */
+.drag-handle {
+    position: absolute;
+    left: -38px;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 24px;
+    height: 32px;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: grab;
+}
+
+.drag-handle:active {
+    cursor: grabbing;
+}
+
+.drag-handle-icon {
+    fill: #ccc;
+    transition: fill 0.2s;
+    display: block;
+}
+
+.drag-handle:hover .drag-handle-icon {
+    fill: #888;
+}
+
+/* Checkbox pakowania */
+.checkbox-btn {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    background: white;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    margin-top: 6px;
+}
+
+.checkbox-btn.done {
+    background: var(--primary-pink);
+}
+
+/* Stan "zaznaczone" dla elementu pakowania */
+.item-input.done {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    color: #999;
+}
+
+/* Animacja przeniesienia elementu pakowania */
+@keyframes packingMove {
+    0%   { transform: scale(1);    }
+    40%  { transform: scale(1.02); }
+    100% { transform: scale(1);    }
+}
+
+.packing-moving {
+    animation: packingMove 0.32s ease;
 }

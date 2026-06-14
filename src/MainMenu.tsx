@@ -1,268 +1,155 @@
 import './App.css'
-import {useState} from "react";
+import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import type { PlanT, Day, PackList } from './types.ts';
 import { DndContext, closestCenter, type DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { arrayMove, SortableContext, rectSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { arrayMove, SortableContext, rectSortingStrategy } from '@dnd-kit/sortable';
+import { useTravelPlans } from './hooks/useTravelPlans';
+import Modal from './components/Modal';
+import { FlowerPanel } from './components/Flowers';
+import SortablePlanItem from './components/SortablePlanItem';
 
 function MainMenu() {
-
     const navigate = useNavigate();
+    const { allPlans, addPlan, removePlan, renamePlan, reorderPlans } = useTravelPlans();
+
     const [isAddPlanOpen, setIsAddPlanOpen] = useState<boolean>(false);
-    const [addedPlans, setAddedPlans] = useState<PlanT[]>(() => {
-        const saved = localStorage.getItem('myTravelPlans');
-        return saved ? JSON.parse(saved) : [];
-    });
     const [namePlanInput, setNamePlanInput] = useState<string>("");
-    const [planToEditId, setPlanToEditId] = useState<number | null>(null);
-    const [newNamePlan, setNewNamePlan] = useState<string>("");
-    const [isEditPlanOpen, setIsEditPlanOpen] = useState<boolean>(false);
+    const [renameModal, setRenameModal] = useState<{ id: number, name: string } | null>(null);
+    const [renameInput, setRenameInput] = useState("");
     const [numberOfDays, setNumberOfDays] = useState<number | null>(null);
     const [numberOfPeople, setNumberOfPeople] = useState<number | null>(null);
 
-    const addPlan = () => {
+    const sensors = useSensors(
+        useSensor(PointerSensor, { activationConstraint: { distance: 10 } })
+    );
+
+    const handleAddPlan = () => {
         if (namePlanInput.trim() !== "") {
-            if (numberOfPeople === null) {
-                setNumberOfPeople(0);
-            }
-
-            if (numberOfDays === null) {
-                setNumberOfDays(0);
-            }
-
-            const initialDays: Day[] = Array.from({length: numberOfDays || 0}, (_, index) => ({
-                id: Date.now() + index,
-                name: `Dzień ${index + 1}`,
-                actvs: []
-            }));
-
-            const initialPacks: PackList[] = Array.from({length: numberOfPeople || 0}, (_, index) => ({
-                id: Date.now() + index,
-                name: `Osoba ${index + 1}`,
-                stuff: []
-            }));
-
-            const newPlan: PlanT = {
-                id: Date.now(),
-                name: namePlanInput,
-                days: initialDays,
-                packs: initialPacks
-            };
-            const newPlans = [newPlan, ...addedPlans];
-            setAddedPlans(newPlans);
-            localStorage.setItem("myTravelPlans", JSON.stringify(newPlans));
-
+            addPlan(namePlanInput, numberOfDays || 0, numberOfPeople || 0);
             setNamePlanInput("");
             setIsAddPlanOpen(false);
             setNumberOfDays(null);
             setNumberOfPeople(null);
         }
-    }
-
-    const removePlan = (idToDelete: number) => {
-        const updatedPlans = addedPlans.filter(plan => plan.id !== idToDelete);
-        setAddedPlans(updatedPlans);
-        localStorage.setItem("myTravelPlans", JSON.stringify(updatedPlans));
-    }
-
-    const stopAddPlan = () => {
-        setIsAddPlanOpen(false);
-        setNamePlanInput("");
-    }
-
-    const planClick = (name: string) => {
-        navigate(`/plan/${name}`);
-    }
-
-    const editPlan = (idToEdit: number, newName: string) => {
-        const updatedPlans = addedPlans.map(plan => {
-            if (plan.id === idToEdit) {
-                return { ...plan, name: newName };
-            }
-            return plan;
-        })
-
-        setAddedPlans(updatedPlans);
-        localStorage.setItem('myTravelPlans', JSON.stringify(updatedPlans));
-        setIsEditPlanOpen(false);
-        setNewNamePlan("");
-    }
+    };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-
         if (over && active.id !== over.id) {
-            setAddedPlans((items) => {
-                const oldIndex = items.findIndex((item) => item.id === active.id);
-                const newIndex = items.findIndex((item) => item.id === over.id);
-
-                const newArray = arrayMove(items, oldIndex, newIndex);
-                localStorage.setItem("myTravelPlans", JSON.stringify(newArray));
-                return newArray;
-            });
+            const oldIndex = allPlans.findIndex((item) => item.id === active.id);
+            const newIndex = allPlans.findIndex((item) => item.id === over.id);
+            reorderPlans(arrayMove(allPlans, oldIndex, newIndex));
         }
     };
 
-    const sensors = useSensors(
-        useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 10, // Musisz przesunąć myszkę o 8px, żeby zaczęło się przeciąganie. Zwykłe kliknięcie przejdzie jako onClick!
-            },
-        })
-    );
-
     return (
-        <div className="app">
-            <div className="title">
-                <h1>Travel Planner</h1>
+        <div className="app-container">
+            <FlowerPanel side="left" top={170} />
+            <FlowerPanel side="right" top={170} />
+
+            <div className="menu-header">
+                <h1 className="menu-logo-title">TravelPlaner</h1>
+                <div className="menu-wave">
+                    <svg viewBox="0 0 1200 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M0,0 H1200 V20 C1100,55 1000,10 900,35 C800,58 700,15 600,38 C500,58 400,12 300,36 C200,58 100,15 0,38 Z" fill="#FFECEE"/>
+                    </svg>
+                </div>
             </div>
 
-            <div className="plans">
+            <div className="plans-grid">
                 <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <div className="newPlans" >
-                        <button className="addPlanBtn" onClick={() => setIsAddPlanOpen(true)}>
-                            +
-                        </button>
-                        <SortableContext items={addedPlans} strategy={rectSortingStrategy}>
-                            {addedPlans.map((plan) => (
-                                <SortablePlan
-                                    key={plan.id}
-                                    plan={plan}
-                                    planClick={planClick}
-                                    removePlan={removePlan}
-                                    setPlanToEditId={setPlanToEditId}
-                                    setNewNamePlan={setNewNamePlan}
-                                    setIsEditPlanOpen={setIsEditPlanOpen}
-                                />
-                            ))}
-                        </SortableContext>
-
-                    </div>
+                    <SortableContext items={allPlans.map(p => p.id)} strategy={rectSortingStrategy}>
+                        {allPlans.map((plan) => (
+                            <SortablePlanItem
+                                key={plan.id}
+                                plan={plan}
+                                onRemove={removePlan}
+                                onRenameClick={(id, name) => { setRenameModal({ id, name }); setRenameInput(name); }}
+                                onClick={() => navigate(`/plan/${plan.name}`)}
+                            />
+                        ))}
+                    </SortableContext>
                 </DndContext>
+
+                <div className="add-plan-btn" onClick={() => setIsAddPlanOpen(true)}>
+                    +
+                </div>
             </div>
 
-            {isAddPlanOpen && (
-                <div className="addPlanWindow">
-                    <div className="nameAPW">
-                        <button className="closeBtn" onClick={stopAddPlan}>X</button>
+            <Modal
+                isOpen={!!renameModal}
+                onClose={() => setRenameModal(null)}
+                onSave={() => {
+                    if (renameModal && renameInput.trim()) {
+                        renamePlan(renameModal.id, renameInput.trim().slice(0, 20));
+                    }
+                    setRenameModal(null);
+                }}
+                title="Edytuj nazwę"
+            >
+                <input
+                    className="form-input"
+                    type="text"
+                    value={renameInput}
+                    onChange={(e) => setRenameInput(e.target.value)}
+                    maxLength={20}
+                    autoFocus
+                    style={{ textAlign: 'center' }}
+                />
+            </Modal>
 
-                        <text className="text">Nazwij swoją podróż:</text>
-
-                        <input
-                            type="text"
-                            id="name"
-                            className="namePlanInput"
-                            placeholder="Nazwij swoją podróż..."
-                            value={namePlanInput}
-                            autoFocus
-                            onChange={(e) => setNamePlanInput(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    (e.target as HTMLInputElement).blur();
-                                    addPlan();
-                                }
-                            }}
-                        />
-
-                        <div className="inputy">
-                            <text className="text">Ilość dni:</text>
-                            <input
-                                type="number"
-                                min="0"
-                                className="numberInput"
-                                onChange={(e) => setNumberOfDays(Number(e.target.value))}
-                            />
-                        </div>
-
-                        <div className="inputy">
-                            <text className="text">Ilość osób:</text>
-                            <input
-                                type="number"
-                                min="0"
-                                className="numberInput"
-                                onChange={(e) => setNumberOfPeople(Number(e.target.value))}
-                            />
-                        </div>
-
-
-                        <button className="saveBtn" style={{marginTop: '10px'}} onClick={addPlan}>Save</button>
-
-                    </div>
+            <Modal
+                isOpen={isAddPlanOpen}
+                onClose={() => setIsAddPlanOpen(false)}
+                onSave={handleAddPlan}
+                title="Nowa Podróż"
+            >
+                <div className="form-group">
+                    <label>Dokąd jedziesz?</label>
+                    <input
+                        className="form-input"
+                        type="text"
+                        placeholder="Nazwa wycieczki..."
+                        value={namePlanInput}
+                        onChange={(e) => setNamePlanInput(e.target.value)}
+                        maxLength={20}
+                        autoFocus
+                        style={{ textAlign: 'center' }}
+                    />
                 </div>
-            )}
 
-            {isEditPlanOpen && (
-                <div className="addPlanWindow">
-                    <div className="nameAPW">
-                        <button className="closeBtn" onClick= {() => setIsEditPlanOpen(false)}>X</button>
-
-                        <text className="text">Edytuj nazwę podróży:</text>
-
-                        <input
-                            type="text"
-                            id="name"
-                            placeholder="Nazwij swoją podróż..."
-                            value={newNamePlan}
-                            className="namePlanInput"
-                            autoFocus
-                            onChange={(e) => setNewNamePlan(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Enter') {
-                                    (e.target as HTMLInputElement).blur();
-                                    editPlan(planToEditId as number, newNamePlan);
-                                }
-                            }}
-                        />
-
-                        <button className="saveBtn" onClick={() => editPlan(planToEditId as number, newNamePlan)}>Save</button>
-
-                    </div>
+                <div className="form-group">
+                    <label>Ile dni?</label>
+                    <input
+                        className="form-input"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={numberOfDays || ""}
+                        onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            setNumberOfDays(val < 0 ? 0 : val || null);
+                        }}
+                        style={{ textAlign: 'center' }}
+                    />
                 </div>
-            )}
 
-        </div>
-    );
-}
-
-function SortablePlan({ plan, planClick, removePlan, setPlanToEditId, setNewNamePlan, setIsEditPlanOpen }: any) {
-    const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: plan.id });
-
-    const style = {
-        transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-        transition: isDragging ? 'none' : transition,
-        zIndex: isDragging ? 1000 : 1, // Aby kafelek był nad innymi podczas ciągnięcia
-        opacity: isDragging ? 0.75 : 1,
-        position: 'relative' as const,
-        touchAction: 'none',
-    };
-
-    const stopPropagation = (e: React.PointerEvent | React.MouseEvent) => {
-        e.stopPropagation();
-    };
-
-    return (
-        <div
-            ref={setNodeRef}
-            style={style}
-            className="planWrapper"
-            {...attributes}
-            {...listeners} // listeners sprawiają, że można "chwycić" kafelek
-        >
-            <button className="addedPlan" onClick={() => planClick(plan.name)}>
-                {plan.name}
-            </button>
-
-            <button className="deleteBtn" onPointerDown={stopPropagation} onClick={(e) => {
-                e.stopPropagation();
-                removePlan(plan.id);
-            }}>X</button>
-
-            <button className="editDayBtn" onPointerDown={stopPropagation} onClick={(e) => {
-                e.stopPropagation();
-                setPlanToEditId(plan.id);
-                setNewNamePlan(plan.name);
-                setIsEditPlanOpen(true);
-            }}>✏️</button>
+                <div className="form-group">
+                    <label>Ile osób?</label>
+                    <input
+                        className="form-input"
+                        type="number"
+                        min="0"
+                        placeholder="0"
+                        value={numberOfPeople || ""}
+                        onChange={(e) => {
+                            const val = parseInt(e.target.value);
+                            setNumberOfPeople(val < 0 ? 0 : val || null);
+                        }}
+                        style={{ textAlign: 'center' }}
+                    />
+                </div>
+            </Modal>
         </div>
     );
 }
